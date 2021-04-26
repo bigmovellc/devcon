@@ -4,9 +4,11 @@ const gravater = require('gravatar');
 const bcrypt = require('bcryptjs')
 const jwt =     require('jsonwebtoken');
 const keys = require('../../config/keys');
+const passport = require('passport');
 
 // load user model
 const User = require('../../models/User');
+const { route } = require('./profile');
 
 
 router.get('/test', (req, res) => res.json({msg: "Users Works"}));
@@ -59,6 +61,8 @@ router.post('/login', (req, res) => {
     const email = req.body.email;
     const pass = req.body.password;
 
+
+    // find user by email
     User.findOne({email})
     .then(user => {
        // check for user
@@ -86,5 +90,16 @@ router.post('/login', (req, res) => {
         })
     });
 });
+
+
+
+
+// @route get api/users/current 
+// @desc return current user
+// @access private
+
+router.get('/current', passport.authenticate('jwt', { session: false }), (req, res) => {
+    res.json(req.user)
+})
 
 module.exports = router;
